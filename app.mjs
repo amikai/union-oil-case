@@ -132,12 +132,44 @@ function wireEvents() {
   });
 }
 
+let recognizing = null;
+
+function wireVoice() {
+  const mic = el("micBtn");
+  const R = window.SpeechRecognition || window.webkitSpeechRecognition;
+  mic.addEventListener("click", () => {
+    if (!R) { showToast("此瀏覽器不支援語音輸入，請改用 Chrome 或 Safari。"); return; }
+    if (recognizing) { recognizing.stop(); return; }
+    const rec = new R();
+    rec.lang = "zh-TW";
+    rec.interimResults = true;
+    rec.continuous = false;
+    rec.onstart = () => { recognizing = rec; mic.classList.add("listening"); el("listenHint").hidden = false; };
+    rec.onresult = (e) => {
+      let fin = "", int = "";
+      for (let i = e.resultIndex; i < e.results.length; i++) {
+        const t = e.results[i][0].transcript;
+        e.results[i].isFinal ? (fin += t) : (int += t);
+      }
+      if (int) el("q").value = int;
+      if (fin) setQuery(fin.trim());
+    };
+    rec.onerror = (e) => {
+      if (e.error === "not-allowed" || e.error === "service-not-allowed") showToast("麥克風權限被拒絕，請在瀏覽器設定開啟。");
+      else if (e.error !== "aborted") showToast("語音辨識發生問題，請再試一次。");
+    };
+    rec.onend = () => { recognizing = null; mic.classList.remove("listening"); el("listenHint").hidden = true; };
+    try { rec.start(); } catch {}
+  });
+}
+
 function init() {
   const q0 = new URLSearchParams(location.search).get("q") || "";
   state.q = q0;
   el("q").value = q0;
   el("clearBtn").hidden = !q0;
   wireEvents();
+  wireVoice();
   loadData();
 }
 
