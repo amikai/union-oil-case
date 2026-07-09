@@ -5,7 +5,7 @@
 **查詢網站**：<https://amikai.org/food-safe>（輸入業者／品名／批號即時比對，支援 `?q=關鍵字` 深連結）
 
 <p align="center">
-  <img src="assets/demo.gif" alt="查詢網站示範" width="360">
+  <img src="assets/demo.gif" alt="查詢網站示範" width="240">
 </p>
 
 ## 資料來源
