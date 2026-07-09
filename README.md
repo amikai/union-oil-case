@@ -10,8 +10,8 @@
 
 ## 目錄結構
 
-- `source/` — 官方原始 PDF，內容有更新時以帶日期檔名累積保存，並以 `SHA256SUMS` 紀錄雜湊
-- `csv/` — 轉換後的最新 CSV（`downstream_distributors_latest.csv`、`withdrawn_products_latest.csv`），固定檔名、隨官方公告更新覆蓋，歷史版本見 git history
+- [`source/`](source/) — 官方原始 PDF，內容有更新時以帶日期檔名累積保存，並以 `SHA256SUMS` 紀錄雜湊
+- [`csv/`](csv/) — 轉換後的最新 CSV（[`downstream_distributors_latest.csv`](csv/downstream_distributors_latest.csv)、[`withdrawn_products_latest.csv`](csv/withdrawn_products_latest.csv)），固定檔名、隨官方公告更新覆蓋，歷史版本見 git history
 
 ## 免責聲明
 
