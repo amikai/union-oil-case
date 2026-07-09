@@ -4,6 +4,8 @@
 
 **查詢網站**：<https://amikai.org/food-safe>（輸入業者／品名／批號即時比對，支援 `?q=關鍵字` 深連結）
 
+![查詢網站示範](assets/demo.gif)
+
 ## 資料來源
 
 衛福部食藥署「中聯油脂案專區」：<https://www.fda.gov.tw/tc/site.aspx?sid=13702&r=1309933787>
