@@ -120,7 +120,7 @@ async function share() {
   const kw = state.q.trim();
   const u = new URL(location.origin + location.pathname);
   u.searchParams.set("q", kw);
-  const text = `幹我吃到癌油了 ${kw}`;
+  const text = `癌油尾呀，不小心吃到 ${kw}`;
   if (navigator.share) {
     try { await navigator.share({ text, url: u.toString() }); } catch {}
   } else if (navigator.clipboard) {
