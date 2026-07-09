@@ -120,7 +120,7 @@ async function share() {
   const kw = state.q.trim();
   const u = new URL("https://amikai.org/food-safe");
   u.searchParams.set("q", kw);
-  const text = `癌油尾呀，我查詢了一下 ${kw}，發現它在上面，${u}，可能要一起當癌友了`;
+  const text = `癌油尾呀，我查了一下 ${kw} 發現它在名單上，快來查查你家的油或食品 ${u}`;
   if (navigator.share) {
     try { await navigator.share({ text }); } catch {}
   } else if (navigator.clipboard) {
