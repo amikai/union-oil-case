@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>問題油品查詢｜中聯油脂案</title>
+<meta name="description" content="輸入業者、品名或批號，即時比對食藥署中聯油脂案官方清單。非官方整理，請以官方公告為準。">
+<meta property="og:title" content="問題油品查詢｜中聯油脂案">
+<meta property="og:description" content="輸入業者、品名或批號，即時比對食藥署官方清單。查無不代表安全，請以官方公告為準。">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://amikai.github.io/union-oil-case/">
+<style>
+:root{
+  --bg:#EDF0F1; --surface:#FFFFFF; --ink:#16211E; --sub:#5B6866; --line:#DEE3E3;
+  --pine:#0E5C4C; --amber:#B5730A; --amber-bg:#FDF2DC; --amber-line:#F3D9A0;
+  --danger:#B42318; --danger-bg:#FCEBE9;
+  --font-cjk:-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC","Microsoft JhengHei","Heiti TC",sans-serif;
+  --font-mono:"SF Mono","JetBrains Mono","Roboto Mono",ui-monospace,Menlo,monospace;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0}
+body{min-height:100vh;background:var(--bg);font-family:var(--font-cjk);color:var(--ink);-webkit-text-size-adjust:100%}
+button{font-family:var(--font-cjk);cursor:pointer}
+input{font-family:var(--font-cjk)}
+input:focus{outline:none}
+.wrap{max-width:480px;margin:0 auto;padding-bottom:calc(28px + env(safe-area-inset-bottom))}
+.top{position:sticky;top:0;z-index:20;background:var(--bg);padding-top:calc(14px + env(safe-area-inset-top));box-shadow:0 6px 12px -12px rgba(0,0,0,.25)}
+.head{padding:0 16px 10px}
+.head h1{margin:0;font-size:21px;font-weight:800;letter-spacing:-.01em;display:flex;align-items:center;gap:9px}
+.head h1 .oil{font-size:26px;line-height:1}
+.head p{margin:5px 0 0;font-size:12.5px;color:var(--sub);line-height:1.5}
+.searchrow{padding:0 16px 12px}
+.searchwrap{display:flex;align-items:center;gap:8px;background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:0 8px 0 14px;height:52px;transition:border-color .15s,box-shadow .15s}
+.searchwrap:focus-within{border-color:var(--pine);box-shadow:0 0 0 3px rgba(14,92,76,.13)}
+.searchwrap input{flex:1;border:none;background:transparent;font-size:16px;color:var(--ink);min-width:0;height:100%}
+::placeholder{color:var(--sub);opacity:.8}
+.iconbtn{width:30px;height:30px;border:none;background:transparent;border-radius:8px;display:grid;place-items:center;padding:0;font-size:15px;color:var(--sub)}
+.micbtn{width:40px;height:40px;border:none;border-radius:11px;background:var(--pine);display:grid;place-items:center;padding:0;flex-shrink:0;font-size:18px}
+.micbtn.listening{background:var(--danger);animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08);opacity:.8}}
+#listenHint{font-size:12px;color:var(--danger);margin:7px 4px 0;font-weight:600}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:0 16px 12px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex-shrink:0;height:32px;padding:0 14px;border-radius:999px;font-size:13px;font-weight:600;border:1.5px solid var(--line);background:var(--surface);color:var(--sub);transition:all .12s}
+.chip:active{transform:scale(.94)}
+.chip[data-src]{font-weight:700;color:var(--ink)}
+.chip.on{border-color:var(--pine);background:var(--pine);color:#fff}
+.chips .divider{width:1px;background:var(--line);flex-shrink:0;margin:6px 2px}
+.banner{margin:4px 16px 0;background:var(--amber-bg);border:1px solid var(--amber-line);border-radius:12px;padding:11px 13px;display:flex;gap:9px}
+.banner p{margin:0;font-size:12px;color:var(--amber);line-height:1.6;font-weight:500}
+#errorBox{margin:10px 16px 0;background:var(--danger-bg);border:1px solid rgba(180,35,24,.2);border-radius:10px;padding:10px 12px;font-size:12.5px;color:var(--danger);font-weight:600}
+#results{padding:14px 16px 0}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;animation:rise .24s cubic-bezier(.2,.7,.3,1) both}
+@keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.card{animation:none}}
+.hit{border-left:4px solid var(--danger);padding:13px 14px;margin-bottom:10px;box-shadow:0 1px 2px rgba(16,33,30,.04)}
+.hit-top{display:flex;align-items:center;gap:6px;margin-bottom:4px;flex-wrap:wrap}
+.tag{font-size:11.5px;font-weight:800;border-radius:6px;padding:1px 7px}
+.city{font-size:11.5px;color:var(--sub)}
+.biz{font-size:15px;font-weight:800;line-height:1.4}
+.prod{font-size:13.5px;color:var(--ink);margin-top:2px;line-height:1.5}
+.meta{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--sub);margin-top:6px}
+.mono{font-family:var(--font-mono)}
+.expired{color:var(--danger)}
+.res-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:8px}
+.res-count{font-size:13px;font-weight:700;color:var(--danger)}
+.res-sub{font-size:11px;color:var(--sub)}
+.capnote{text-align:center;font-size:12px;color:var(--sub);padding:6px 0 4px}
+.rest{text-align:center;padding:36px 8px 8px}
+.rest-icon{font-size:34px}
+.rest-title{font-size:16px;font-weight:800;margin-top:10px}
+.rest-sub{font-size:13px;color:var(--sub);line-height:1.7;margin:8px 0 0}
+.ghost{margin-top:12px;height:36px;padding:0 16px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);font-weight:700;font-size:13px}
+.share{width:100%;height:44px;border:1.5px solid var(--pine);background:var(--surface);color:var(--pine);border-radius:12px;font-weight:700;font-size:14px;margin-bottom:12px}
+.share:active{transform:scale(.985)}
+.sources{padding:20px 16px 0}
+.sources>button{width:100%;display:flex;align-items:center;justify-content:space-between;background:transparent;border:none;padding:8px 2px;font-size:14px;font-weight:800;color:var(--ink)}
+#srcChev{transition:transform .2s;color:var(--sub)}
+#srcChev.open{transform:rotate(180deg)}
+#srcPanel{padding:6px 4px;margin-top:6px}
+#srcPanel a{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px;border-bottom:1px solid var(--line);text-decoration:none}
+#srcPanel a:last-of-type{border-bottom:none}
+#srcPanel a span:first-child{font-size:13.5px;color:var(--pine);font-weight:600;line-height:1.4}
+#srcPanel a span:last-child{flex-shrink:0;font-size:10.5px;color:var(--sub);border:1px solid var(--line);border-radius:6px;padding:1px 6px}
+.srcnote{font-size:11.5px;color:var(--sub);line-height:1.65;padding:11px 12px 6px}
+.scope{padding:18px 16px 0}
+.scope div{background:var(--amber-bg);border:1px dashed rgba(181,115,10,.4);border-radius:10px;padding:11px 13px;font-size:11px;color:var(--amber);line-height:1.7}
+.scope a{color:var(--amber)}
+#toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--ink);color:#fff;font-size:13px;font-weight:600;border-radius:10px;padding:10px 16px;z-index:50;max-width:90vw}
+[hidden]{display:none !important}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="head">
+      <h1><span class="oil">🛢️</span>問題油品查詢</h1>
+      <p>2026 中聯油脂大豆沙拉油「苯駢芘」致癌物超標事件 · 輸入業者／品名／批號即時比對，涵蓋 <span id="total">—</span> 筆官方清單</p>
+    </div>
+    <div class="searchrow">
+      <div class="searchwrap">
+        <span aria-hidden="true">🔍</span>
+        <input id="q" inputmode="search" enterkeyhint="search" placeholder="業者、品名、批號… 例如 C1160426K、聯華、飯糰">
+        <button id="clearBtn" class="iconbtn" aria-label="清除" hidden>✕</button>
+        <button id="micBtn" class="micbtn" aria-label="語音輸入">🎙️</button>
+      </div>
+      <div id="listenHint" hidden>聆聽中… 說出業者或品名（點麥克風可停止）</div>
+    </div>
+    <div class="chips">
+      <button class="chip on" data-src="all">全部清單</button>
+      <button class="chip" data-src="架">預防性下架</button>
+      <button class="chip" data-src="業">下游業者</button>
+      <div class="divider"></div>
+      <button class="chip" data-kw="泰山">泰山</button>
+      <button class="chip" data-kw="福壽">福壽</button>
+      <button class="chip" data-kw="益康">益康</button>
+      <button class="chip" data-kw="聯華">聯華</button>
+      <button class="chip" data-kw="沙拉油">沙拉油</button>
+      <button class="chip" data-kw="飯糰">飯糰</button>
+      <button class="chip" data-kw="沙拉醬">沙拉醬</button>
+      <button class="chip" data-kw="便當">便當</button>
+    </div>
+  </div>
+
+  <div class="banner">
+    <span style="font-size:15px;line-height:1.4">⚠️</span>
+    <p>資料隨官方公告更新，<b>非即時</b>。<b>「查無」不代表安全</b>——請以桶身<b>批號</b>及官方公告為準。資料整理與歷史紀錄見 <a href="https://github.com/amikai/union-oil-case" style="color:var(--amber)">GitHub</a>。</p>
+  </div>
+
+  <div id="errorBox" hidden></div>
+  <div id="results"></div>
+
+  <div class="sources">
+    <button id="srcToggle">📄 官方資料來源與品牌公告 <span id="srcChev">▼</span></button>
+    <div id="srcPanel" class="card" hidden>
+      <a href="https://www.fda.gov.tw/tc/site.aspx?sid=13702" target="_blank" rel="noopener noreferrer"><span>食藥署 中聯油脂案專區</span><span>官方</span></a>
+      <a href="https://www.fda.gov.tw/tc/includes/GetFile.ashx?id=t408966" target="_blank" rel="noopener noreferrer"><span>① 食藥署 下游業者清單 PDF</span><span>PDF</span></a>
+      <a href="https://www.fda.gov.tw/tc/includes/GetFile.ashx?id=f639191200225589880&type=3&iid=13719" target="_blank" rel="noopener noreferrer"><span>② 食藥署 預防性下架產品清單 PDF</span><span>PDF</span></a>
+      <a href="https://www.fda.gov.tw/tc/includes/GetFile.ashx?id=f639191201690713353&type=3&iid=13717" target="_blank" rel="noopener noreferrer"><span>③ 食藥署 下游流向圖 PDF</span><span>PDF</span></a>
+      <a href="https://www.taichung.gov.tw/media/1433275/%E6%B2%B9%E5%93%81%E5%93%81%E9%A0%85.pdf" target="_blank" rel="noopener noreferrer"><span>④ 台中市食安處 油品品項清單 PDF</span><span>PDF</span></a>
+      <a href="https://www.fda.gov.tw/tc/siteList.aspx?sid=13708" target="_blank" rel="noopener noreferrer"><span>下游業者清單頁</span><span>官方</span></a>
+      <a href="https://www.taisun.com.tw/260702/" target="_blank" rel="noopener noreferrer"><span>泰山聲明</span><span>品牌</span></a>
+      <a href="https://www.fwusow.com.tw/index.php/news/item/2306" target="_blank" rel="noopener noreferrer"><span>福壽聲明</span><span>品牌</span></a>
+      <a href="https://www.fopco.com.tw/News_Detail.php?ADKey=1&CataP=378" target="_blank" rel="noopener noreferrer"><span>福懋聲明</span><span>品牌</span></a>
+      <div class="srcnote">原料油批號 <b class="mono" style="color:var(--ink)">315-1150404</b>。退貨客服：泰山 0800-079080、福壽 0800-236699、福懋 0800-888255；消費爭議打 1950。<br>苯駢芘為 IARC 第一類致癌物，風險來自長期累積；短期食用無須恐慌，重點是停用問題批號、飲食均衡。</div>
+    </div>
+  </div>
+
+  <div class="scope">
+    <div><b>⚠ 資料範圍</b>：本頁 <b id="total2">—</b> 筆彙整自食藥署兩份官方清單——「下游業者清單」（含品項＋批號）與「預防性下架產品清單」（產品名稱）。<b>本案滾動更新</b>，完整/最新版本請以上方官方 PDF 為準。搜尋僅比對業者、品名、批號；<b>查無不代表安全</b>。本站為非官方整理，資料來源與更新紀錄見 <a href="https://github.com/amikai/union-oil-case">GitHub repo</a>。</div>
+  </div>
+</div>
+<div id="toast" hidden></div>
+<script type="module" src="./app.mjs"></script>
+</body>
+</html>
