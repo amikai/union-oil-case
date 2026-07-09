@@ -163,7 +163,12 @@ function wireVoice() {
     rec.lang = "zh-TW";
     rec.interimResults = true;
     rec.continuous = false;
-    rec.onstart = () => { recognizing = rec; mic.classList.add("listening"); el("listenHint").hidden = false; };
+    let silenceTimer = null;
+    const armSilenceTimer = () => {
+      clearTimeout(silenceTimer);
+      silenceTimer = setTimeout(() => { try { rec.stop(); } catch {} }, 4000);
+    };
+    rec.onstart = () => { recognizing = rec; mic.classList.add("listening"); el("listenHint").hidden = false; armSilenceTimer(); };
     rec.onresult = (e) => {
       let fin = "", int = "";
       for (let i = e.resultIndex; i < e.results.length; i++) {
@@ -171,13 +176,14 @@ function wireVoice() {
         e.results[i].isFinal ? (fin += t) : (int += t);
       }
       if (int) el("q").value = int;
-      if (fin) setQuery(fin.trim());
+      if (fin) { setQuery(fin.trim()); try { rec.stop(); } catch {} return; }
+      armSilenceTimer();
     };
     rec.onerror = (e) => {
       if (e.error === "not-allowed" || e.error === "service-not-allowed") showToast("麥克風權限被拒絕，請在瀏覽器設定開啟。");
-      else if (e.error !== "aborted") showToast("語音辨識發生問題，請再試一次。");
+      else if (e.error !== "aborted" && e.error !== "no-speech") showToast("語音辨識發生問題，請再試一次。");
     };
-    rec.onend = () => { recognizing = null; mic.classList.remove("listening"); el("listenHint").hidden = true; };
+    rec.onend = () => { clearTimeout(silenceTimer); recognizing = null; mic.classList.remove("listening"); el("listenHint").hidden = true; };
     try { rec.start(); } catch {}
   });
 }
