@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a data curation project (no application code): in the spirit of Open Data, it converts official PDF announcements from Taiwan's Union Oil (中聯油脂) food safety case into CSV files for the public and developers to query. Query website entry point: <https://amikai.org/food-safe> (redirects to a Claude artifact).
+This is a data curation project plus a static query site: in the spirit of Open Data, it converts official PDF announcements from Taiwan's Union Oil (中聯油脂) food safety case into CSV files for the public and developers to query. Query website entry point: <https://amikai.org/food-safe> (Cloudflare redirect, query-string preserved, to the GitHub Pages site served from this repo's main branch root: `index.html` + `lib.mjs` + `app.mjs`, zero-build vanilla JS reading `csv/*_latest.csv`).
 
 Data source: Taiwan FDA "Union Oil Case" portal <https://www.fda.gov.tw/tc/site.aspx?sid=13702&r=1309933787>
 
