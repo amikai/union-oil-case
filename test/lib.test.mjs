@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { stripBOM, parseCSV, buildRecords, normalize, filterRecords } from "../lib.mjs";
+import { stripBOM, parseCSV, buildRecords, normalize, filterRecords, pickBestCandidate } from "../lib.mjs";
 
 test("stripBOM 移除開頭 BOM", () => {
   assert.equal(stripBOM("﻿abc"), "abc");
@@ -80,4 +80,20 @@ test("多 token 為 AND 條件", () => {
 test("來源篩選與關鍵字並用", () => {
   assert.equal(filterRecords(RECS, "沙拉油", "架").length, 0);
   assert.equal(filterRecords(RECS, "沙拉油", "業").length, 2);
+});
+
+test("pickBestCandidate 第一候選查無時取第二候選", () => {
+  assert.equal(pickBestCandidate(RECS, ["複數", "福壽"]), "福壽");
+});
+
+test("pickBestCandidate 第一候選命中就直接用", () => {
+  assert.equal(pickBestCandidate(RECS, ["泰山", "福壽"]), "泰山");
+});
+
+test("pickBestCandidate 全部查無退回第一候選", () => {
+  assert.equal(pickBestCandidate(RECS, ["統一", "義美"]), "統一");
+});
+
+test("pickBestCandidate 空陣列回傳空字串", () => {
+  assert.equal(pickBestCandidate(RECS, []), "");
 });

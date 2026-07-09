@@ -51,3 +51,8 @@ export function filterRecords(records, q, src) {
   }
   return out;
 }
+
+export function pickBestCandidate(records, candidates) {
+  if (!candidates.length) return "";
+  return candidates.find((c) => filterRecords(records, c, "all").length > 0) || candidates[0];
+}
