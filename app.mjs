@@ -120,12 +120,12 @@ async function share() {
   const kw = state.q.trim();
   const u = new URL("https://amikai.org/food-safe");
   u.searchParams.set("q", kw);
-  const text = `癌油尾呀，我查詢了一下癌食 - ${kw},`;
+  const text = `癌油尾呀，我查詢了一下 ${kw}，發現它在上面，${u}，可能要一起當癌友了`;
   if (navigator.share) {
-    try { await navigator.share({ text, url: u.toString() }); } catch {}
+    try { await navigator.share({ text }); } catch {}
   } else if (navigator.clipboard) {
     try {
-      await navigator.clipboard.writeText(`${text} ${u}`);
+      await navigator.clipboard.writeText(text);
       showToast("已複製，貼給朋友吧");
     } catch { showToast("複製失敗，請手動複製網址列"); }
   } else {
