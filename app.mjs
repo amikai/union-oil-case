@@ -87,7 +87,57 @@ function render() {
   `;
 }
 
+function syncURL() {
+  const u = new URL(location.href);
+  if (state.q.trim()) u.searchParams.set("q", state.q.trim());
+  else u.searchParams.delete("q");
+  history.replaceState(null, "", u);
+}
+
+function setQuery(v) {
+  state.q = v;
+  if (el("q").value !== v) el("q").value = v;
+  el("clearBtn").hidden = !(v || state.src !== "all");
+  syncURL();
+  render();
+}
+
+function clearAll() {
+  state.src = "all";
+  setQuery("");
+}
+
+function showToast(msg) {
+  const t = el("toast");
+  t.textContent = msg;
+  t.hidden = false;
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(() => { t.hidden = true; }, 2600);
+}
+
+function wireEvents() {
+  el("q").addEventListener("input", (e) => setQuery(e.target.value));
+  el("clearBtn").addEventListener("click", clearAll);
+  document.querySelectorAll("[data-src]").forEach((b) =>
+    b.addEventListener("click", () => { state.src = b.dataset.src; setQuery(state.q); }));
+  document.querySelectorAll("[data-kw]").forEach((b) =>
+    b.addEventListener("click", () => setQuery(b.dataset.kw)));
+  el("results").addEventListener("click", (e) => {
+    if (e.target.closest("#clearEmpty")) clearAll();
+  });
+  el("srcToggle").addEventListener("click", () => {
+    const p = el("srcPanel");
+    p.hidden = !p.hidden;
+    el("srcChev").classList.toggle("open", !p.hidden);
+  });
+}
+
 function init() {
+  const q0 = new URLSearchParams(location.search).get("q") || "";
+  state.q = q0;
+  el("q").value = q0;
+  el("clearBtn").hidden = !q0;
+  wireEvents();
   loadData();
 }
 
