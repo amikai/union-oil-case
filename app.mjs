@@ -1,4 +1,4 @@
-import { buildRecords, filterRecords } from "./lib.mjs";
+import { buildRecords, filterRecords, pickBestCandidate } from "./lib.mjs";
 
 const CAP = 120;
 const SRC_META = {
@@ -163,6 +163,7 @@ function wireVoice() {
     rec.lang = "zh-TW";
     rec.interimResults = true;
     rec.continuous = false;
+    rec.maxAlternatives = 3;
     let silenceTimer = null;
     const armSilenceTimer = () => {
       clearTimeout(silenceTimer);
@@ -170,13 +171,20 @@ function wireVoice() {
     };
     rec.onstart = () => { recognizing = rec; mic.classList.add("listening"); el("listenHint").hidden = false; armSilenceTimer(); };
     rec.onresult = (e) => {
-      let fin = "", int = "";
-      for (let i = e.resultIndex; i < e.results.length; i++) {
-        const t = e.results[i][0].transcript;
-        e.results[i].isFinal ? (fin += t) : (int += t);
+      const res = e.results[e.results.length - 1];
+      if (res.isFinal) {
+        const candidates = [];
+        for (let k = 0; k < res.length; k++) {
+          const t = (res[k].transcript || "").trim();
+          if (t) candidates.push(t);
+        }
+        setQuery(pickBestCandidate(state.records, candidates));
+        try { rec.stop(); } catch {}
+        return;
       }
-      if (int) el("q").value = int;
-      if (fin) { setQuery(fin.trim()); try { rec.stop(); } catch {} return; }
+      let int = "";
+      for (let i = e.resultIndex; i < e.results.length; i++) int += e.results[i][0].transcript;
+      if (int.trim()) setQuery(int.trim());
       armSilenceTimer();
     };
     rec.onerror = (e) => {
