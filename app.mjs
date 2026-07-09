@@ -82,6 +82,7 @@ function render() {
       <span class="res-count">找到 ${results.length} 筆</span>
       <span class="res-sub">下架 ${j}・業者 ${y}</span>
     </div>
+    ${q.trim() ? `<button id="shareBtn" class="share">📣 分享查詢結果</button>` : ""}
     ${shown.map(hitCard).join("")}
     ${results.length > CAP ? `<div class="capnote">還有 ${results.length - CAP} 筆，請輸入更精確的業者或批號縮小範圍。</div>` : ""}
   `;
@@ -115,6 +116,23 @@ function showToast(msg) {
   showToast._t = setTimeout(() => { t.hidden = true; }, 2600);
 }
 
+async function share() {
+  const kw = state.q.trim();
+  const u = new URL(location.origin + location.pathname);
+  u.searchParams.set("q", kw);
+  const text = `幹我吃到癌油了 ${kw}`;
+  if (navigator.share) {
+    try { await navigator.share({ text, url: u.toString() }); } catch {}
+  } else if (navigator.clipboard) {
+    try {
+      await navigator.clipboard.writeText(`${text} ${u}`);
+      showToast("已複製，貼給朋友吧");
+    } catch { showToast("複製失敗，請手動複製網址列"); }
+  } else {
+    showToast("此瀏覽器不支援分享，請手動複製網址列");
+  }
+}
+
 function wireEvents() {
   el("q").addEventListener("input", (e) => setQuery(e.target.value));
   el("clearBtn").addEventListener("click", clearAll);
@@ -124,6 +142,7 @@ function wireEvents() {
     b.addEventListener("click", () => setQuery(b.dataset.kw)));
   el("results").addEventListener("click", (e) => {
     if (e.target.closest("#clearEmpty")) clearAll();
+    if (e.target.closest("#shareBtn")) share();
   });
   el("srcToggle").addEventListener("click", () => {
     const p = el("srcPanel");
