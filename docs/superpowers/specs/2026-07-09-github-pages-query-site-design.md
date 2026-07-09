@@ -51,7 +51,11 @@ union-oil-case/
 
 **移除**：拍照辨識（含「需登入 Claude」說明列）
 
-**新增**：`?q=xxx` 深連結（開頁帶入搜尋；輸入同步回網址列，可複製分享）
+**新增**：
+
+- `?q=xxx` 深連結（開頁帶入搜尋；輸入時 `replaceState` 同步回網址列，可複製分享）
+- 社群分享按鈕（搜尋有結果時顯示）：組出預設文字＋`?q=` 深連結，優先用 `navigator.share` 開原生分享面板（feature detection），不支援則 `navigator.clipboard.writeText` 複製並提示「已複製」。預設文字模板：`幹我吃到癌油了 <關鍵字> <連結>`（文案可隨時調整）
+- OG meta tags（`og:title`、`og:description`）：讓分享連結在 LINE/FB 有預覽卡；靜態網站僅能固定一組文案，不隨 `?q=` 變動
 
 **文案調整**：快照日期改為「資料隨官方公告更新，非即時」＋ repo 連結
 
@@ -65,5 +69,11 @@ union-oil-case/
 
 1. 本地 `python3 -m http.server` 開發驗證（`file://` 無法 fetch）
 2. 驗證項目：中文／批號搜尋、來源篩選、`?q=` 深連結、BOM 處理、手機寬度 RWD、CSV 載入失敗畫面
-3. 開啟 Pages 後在 `https://amikai.github.io/union-oil-case/` 驗證
-4. 之後由使用者自行把 `amikai.org/food-safe` redirect 改指到 Pages URL
+3. 驗證分享按鈕：支援 Web Share 的環境開面板、不支援的環境複製＋提示
+4. 開啟 Pages 後在 `https://amikai.github.io/union-oil-case/` 驗證
+5. 之後由使用者自行把 `amikai.org/food-safe` redirect 改指到 Pages URL
+
+## 後續構想（不在本次範圍）
+
+- 產生合併純文字檔（`food_safe_data_latest.txt`：兩份 CSV 加段落標題），供 LLM 一次抓取完整資料集；搭配預填 prompt 的短網址（`chatgpt.com/?q=…`）做 AI 查詢入口
+- `llms.txt` 說明檔
