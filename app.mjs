@@ -118,7 +118,7 @@ function showToast(msg) {
 
 async function share() {
   const kw = state.q.trim();
-  const u = new URL(location.origin + location.pathname);
+  const u = new URL("https://amikai.org/food-safe");
   u.searchParams.set("q", kw);
   const text = `癌油尾呀，不小心吃到 ${kw}`;
   if (navigator.share) {
