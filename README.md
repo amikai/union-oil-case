@@ -2,6 +2,8 @@
 
 秉持開放資料（Open Data）精神，將中聯油脂案的官方 PDF 公告轉成結構化、易於存取與再利用的 CSV，降低民眾與開發者查詢的門檻。
 
+**查詢網站**：<https://amikai.github.io/union-oil-case/>（輸入業者／品名／批號即時比對，支援 `?q=關鍵字` 深連結）
+
 ## 資料來源
 
 衛福部食藥署「中聯油脂案專區」：<https://www.fda.gov.tw/tc/site.aspx?sid=13702&r=1309933787>
