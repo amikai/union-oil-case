@@ -9,7 +9,7 @@
 
 ## 決策紀錄
 
-- **技術路線**：單一 `index.html`、vanilla JS、零 build、零外部依賴（否決 Vite+React 與 CDN React：資料 repo 不引入前端工具鏈與執行期第三方依賴）
+- **技術路線**：vanilla JS、零 build、零外部依賴（否決 Vite+React 與 CDN React：資料 repo 不引入前端工具鏈與執行期第三方依賴）。檔案拆成 `index.html`（標記＋樣式）、`lib.mjs`（純邏輯：CSV 解析、記錄映射、搜尋比對，可用 Node 內建 `node --test` 直接測試）、`app.mjs`（DOM 與事件），ES modules 免打包
 - **Pages 來源**：deploy from branch，`main` / root——網頁可同源 fetch `csv/`，CSV 同時獲得乾淨的 `amikai.github.io` URL
 - **拍照辨識**：移除。它依賴 Claude artifact 環境的免金鑰 Anthropic API，靜態網站無法運作
 - **快照日期**：不顯示確切日期，改為「資料隨官方公告更新，非即時」＋ GitHub repo 連結（否決 GitHub API 查 commit 與 meta.json）
@@ -19,7 +19,10 @@
 
 ```
 union-oil-case/
-├── index.html      ← 新增：整個網站（內嵌 CSS + JS）
+├── index.html      ← 新增：標記 + 樣式
+├── lib.mjs         ← 新增：純邏輯（CSV 解析、映射、比對）
+├── app.mjs         ← 新增：DOM 渲染與事件
+├── test/           ← 新增：node --test 的單元測試
 ├── csv/            ← 資料來源（同源 fetch）
 └── source/         ← 不變
 ```
@@ -67,7 +70,8 @@ union-oil-case/
 
 ## 驗證
 
-1. 本地 `python3 -m http.server` 開發驗證（`file://` 無法 fetch）
+1. 純邏輯以 `node --test test/` 單元測試（Node 內建，無依賴）
+2. 本地 `python3 -m http.server` 開發驗證（`file://` 無法 fetch，ES modules 也需要 http）
 2. 驗證項目：中文／批號搜尋、來源篩選、`?q=` 深連結、BOM 處理、手機寬度 RWD、CSV 載入失敗畫面
 3. 驗證分享按鈕：支援 Web Share 的環境開面板、不支援的環境複製＋提示
 4. 開啟 Pages 後在 `https://amikai.github.io/union-oil-case/` 驗證
