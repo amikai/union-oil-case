@@ -27,7 +27,7 @@ Data source: Taiwan FDA "Union Oil Case" portal <https://www.fda.gov.tw/tc/site.
 
 ## CSV Format Notes
 
-- Both CSVs are UTF-8 **with BOM**; preserve the BOM when editing (Excel users need it to display Chinese correctly)
+- Both CSVs are UTF-8 **without BOM**, with **LF** line endings — standard Unix convention. Do not reintroduce a BOM or CRLF when regenerating. (`stripBOM` in `lib.mjs` tolerates a BOM if one ever appears, but files should not carry one.)
 - `withdrawn_products_latest.csv` columns: 業者序號,縣市,業者,產品序號,產品名稱,有效日期
 - `downstream_distributors_latest.csv` columns: 序號,縣市,業者,品項,批號,有效日期
 
